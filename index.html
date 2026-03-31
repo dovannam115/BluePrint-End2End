@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GSM MDOOH — Production AdTech Blueprint v2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg0:#07090e;--bg1:#0c0f16;--bg2:#111520;--bg3:#171c2a;--bg4:#1e2538;--bg5:#252d45;
+  --ink:#dde4f0;--ink2:#8896b3;--ink3:#4a5673;--ink4:#2a3350;
+  --cyan:#00e5cc;--cyan2:rgba(0,229,204,.1);--cyan3:rgba(0,229,204,.05);
+  --gold:#f0a500;--gold2:rgba(240,165,0,.1);
+  --rose:#ff4d6d;--rose2:rgba(255,77,109,.1);
+  --violet:#7c6bff;--violet2:rgba(124,107,255,.1);
+  --sky:#3d9eff;--sky2:rgba(61,158,255,.1);
+  --sage:#4ade80;--sage2:rgba(74,222,128,.1);
+  --mono:'JetBrains Mono',monospace;--display:'Syne',sans-serif;--serif:'Lora',serif;
+  --r:8px;--r2:12px;--r3:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg0);color:var(--ink);font-family:var(--display);font-size:13px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+
+/* ── LAYOUT ── */
+.shell{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.nav{width:248px;min-width:248px;background:var(--bg1);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.nav::-webkit-scrollbar{width:3px}.nav::-webkit-scrollbar-thumb{background:var(--bg4)}
+
+.nav-brand{padding:22px 18px 16px;border-bottom:1px solid rgba(255,255,255,.05)}
+.brand-pill{display:inline-flex;align-items:center;gap:7px;background:var(--cyan2);border:1px solid rgba(0,229,204,.18);border-radius:20px;padding:4px 10px;margin-bottom:10px}
+.brand-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:blink 2.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.brand-pill span{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:.08em}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.brand-ver{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:3px}
+
+.nav-body{padding:14px 10px;flex:1}
+.nav-group{margin-bottom:20px}
+.nav-grouplabel{font-family:var(--mono);font-size:9px;color:var(--ink4);letter-spacing:.12em;text-transform:uppercase;padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;cursor:pointer;color:var(--ink3);font-size:12px;font-weight:500;border:1px solid transparent;margin-bottom:1px;transition:all .15s;user-select:none}
+.nav-item:hover{background:var(--bg3);color:var(--ink)}
+.nav-item.on{background:var(--bg4);color:var(--ink);border-color:rgba(255,255,255,.08)}
+.nav-ic{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;background:var(--bg3)}
+.nav-item.on .nav-ic{background:var(--bg2)}
+.nav-badge{margin-left:auto;font-family:var(--mono);font-size:9px;padding:1px 5px;border-radius:3px;background:var(--cyan2);color:var(--cyan);border:1px solid rgba(0,229,204,.2)}
+
+.nav-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.05);font-family:var(--mono);font-size:9px;color:var(--ink4);line-height:1.6}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--bg1);border-bottom:1px solid rgba(255,255,255,.05);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.tb-left{display:flex;align-items:center;gap:10px;font-size:12px}
+.tb-root{color:var(--ink3)}
+.tb-sep{color:var(--ink4)}
+.tb-cur{color:var(--ink);font-weight:600}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-family:var(--mono);font-size:10px}
+.tb-pill.live{background:var(--cyan2);border:1px solid rgba(0,229,204,.2);color:var(--cyan)}
+.tb-pill.draft{background:var(--gold2);border:1px solid rgba(240,165,0,.2);color:var(--gold)}
+.tb-dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:blink 2s infinite}
+
+/* ── CONTENT ── */
+.body{padding:28px 28px 48px;flex:1}
+.sec{display:none}.sec.on{display:block}
+
+/* ── HERO ── */
+.hero{margin-bottom:28px}
+.hero-tag{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.hero-tag::before{content:'';display:inline-block;width:20px;height:1px;background:var(--cyan)}
+.hero-h{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:10px}
+.hero-h em{color:var(--cyan);font-style:normal}
+.hero-p{font-size:13px;color:var(--ink2);max-width:640px;line-height:1.75;font-family:var(--serif)}
+
+/* ── GRID ── */
+.g1{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.g13{display:grid;grid-template-columns:1fr 3fr;gap:14px;margin-bottom:14px}
+.g31{display:grid;grid-template-columns:3fr 1fr;gap:14px;margin-bottom:14px}
+
+/* ── CARD ── */
+.card{background:var(--bg1);border:1px solid rgba(255,255,255,.06);border-radius:var(--r2);overflow:hidden;transition:border-color .2s}
+.card:hover{border-color:rgba(255,255,255,.1)}
+.card.accent-cyan{border-color:rgba(0,229,204,.15);background:linear-gradient(135deg,var(--bg1),rgba(0,229,204,.03))}
+.card.accent-gold{border-color:rgba(240,165,0,.15);background:linear-gradient(135deg,var(--bg1),rgba(240,165,0,.03))}
+.card.accent-violet{border-color:rgba(124,107,255,.15);background:linear-gradient(135deg,var(--bg1),rgba(124,107,255,.03))}
+.card.accent-rose{border-color:rgba(255,77,109,.15)}
+
+.ch{padding:15px 18px 11px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.ch-t{font-size:12.5px;font-weight:700;letter-spacing:-.01em}
+.ch-s{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:2px}
+.cb{padding:16px 18px}
+.cb.np{padding:0}
+.cb.pt{padding-top:14px}
+
+/* ── CHIPS ── */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:4px;font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;flex-shrink:0;font-weight:500}
+.chip-c{background:var(--cyan2);color:var(--cyan);border:1px solid rgba(0,229,204,.2)}
+.chip-g{background:var(--sage2);color:var(--sage);border:1px solid rgba(74,222,128,.2)}
+.chip-a{background:var(--gold2);color:var(--gold);border:1px solid rgba(240,165,0,.2)}
+.chip-r{background:var(--rose2);color:var(--rose);border:1px solid rgba(255,77,109,.2)}
+.chip-v{background:var(--violet2);color:var(--violet);border:1px solid rgba(124,107,255,.2)}
+.chip-s{background:var(--sky2);color:var(--sky);border:1px solid rgba(61,158,255,.2)}
+.chip-n{background:rgba(255,255,255,.05);color:var(--ink3);border:1px solid rgba(255,255,255,.08)}
+
+/* ── CODE ── */
+.code{background:var(--bg0);border:1px solid rgba(255,255,255,.06);border-radius:var(--r);padding:13px 15px;font-family:var(--mono);font-size:11px;line-height:1.8;overflow-x:auto;white-space:pre;margin:10px 0}
+.code .kw{color:#ff7eb6}.code .fn{color:#f0a500}.code .str{color:#7ee8a2}
+.code .cm{color:#3d4f6e;font-style:italic}.code .num{color:#9d8bff}.code .op{color:#e879f9}
+.code .var{color:#67e8f9}.code .t{color:var(--ink)}
+
+/* ── FORMULA ── */
+.formula{background:var(--bg0);border-left:2px solid var(--violet);border-radius:0 var(--r) var(--r) 0;padding:13px 15px;font-family:var(--mono);font-size:11.5px;color:var(--violet);line-height:1.9;margin:10px 0}
+.formula .cm{color:var(--ink3);font-style:italic}
+.formula .hl{color:var(--cyan)}
+.formula .wa{color:var(--gold)}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.08);font-family:var(--mono);font-size:9.5px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+.tbl td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;color:var(--ink2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.tbl .fname{font-family:var(--mono);font-size:11px;color:var(--ink);font-weight:500}
+
+/* ── NOTICE ── */
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);margin:10px 0;border:1px solid}
+.note-ic{font-size:13px;flex-shrink:0;margin-top:1px}
+.note-tx{font-size:12px;line-height:1.65}
+.note-tx strong{font-weight:700;display:block;margin-bottom:2px}
+.note-c{background:var(--cyan2);border-color:rgba(0,229,204,.2)}.note-c .note-tx{color:#00c4af}
+.note-a{background:var(--gold2);border-color:rgba(240,165,0,.2)}.note-a .note-tx{color:#c98a00}
+.note-r{background:var(--rose2);border-color:rgba(255,77,109,.2)}.note-r .note-tx{color:#d93a58}
+.note-v{background:var(--violet2);border-color:rgba(124,107,255,.2)}.note-v .note-tx{color:#6c5cdf}
+.note-g{background:var(--sage2);border-color:rgba(74,222,128,.2)}.note-g .note-tx{color:#32b35a}
+
+/* ── STEP FLOW ── */
+.flow{display:flex;flex-direction:column}
+.fi{display:flex;gap:13px;position:relative}
+.fl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:28px}
+.fn2{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:600;flex-shrink:0;z-index:1}
+.fline{width:1px;flex:1;background:rgba(255,255,255,.06);margin:3px 0;min-height:16px}
+.fc{padding-bottom:20px;flex:1}
+.fi:last-child .fc{padding-bottom:0}
+.fi:last-child .fline{display:none}
+.ft{font-size:12.5px;font-weight:700;margin-bottom:5px;margin-top:3px;letter-spacing:-.01em}
+.fd{font-size:12px;color:var(--ink2);line-height:1.65}
+
+/* ── BARS ── */
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bar-lbl{font-family:var(--mono);font-size:10px;color:var(--ink2);width:140px;flex-shrink:0}
+.bar-track{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .9s cubic-bezier(.4,0,.2,1)}
+.bar-val{font-family:var(--mono);font-size:10px;color:var(--ink3);width:40px;text-align:right}
+
+/* ── METRIC ── */
+.metric-big{font-family:var(--mono);font-size:28px;font-weight:600;letter-spacing:-.04em;line-height:1}
+.metric-lbl{font-size:11px;color:var(--ink3);margin-top:4px}
+.metric-delta{font-family:var(--mono);font-size:10px;margin-top:5px}
+.up{color:var(--sage)}.dn{color:var(--rose)}
+
+/* ── PIPELINE ── */
+.pipe{display:flex;align-items:stretch;overflow-x:auto;padding-bottom:4px}
+.ps{flex:1;min-width:110px;padding:13px 14px;background:var(--bg2);border:1px solid rgba(255,255,255,.06);position:relative;transition:background .2s}
+.ps:first-child{border-radius:8px 0 0 8px}.ps:last-child{border-radius:0 8px 8px 0}
+.ps:not(:last-child){border-right:none}
+.ps:hover{background:var(--bg3)}
+.pa{position:absolute;right:-10px;top:50%;transform:translateY(-50%);z-index:1;width:19px;height:19px;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-left:none;border-radius:0 4px 4px 0;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--ink3)}
+.ps:last-child .pa{display:none}
+.pn{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-bottom:5px}
+.pm{font-size:11.5px;font-weight:700;margin-bottom:3px;line-height:1.3}
+.pt2{font-family:var(--mono);font-size:9.5px;color:var(--ink3)}
+
+/* ── TAG LIST ── */
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.tag{padding:2px 7px;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:4px;font-family:var(--mono);font-size:10px;color:var(--ink2)}
+
+/* ── STAT CARD ── */
+.stat{padding:16px 18px;text-align:center}
+
+/* ── TRADEOFF MATRIX ── */
+.matrix{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mcell{padding:14px;border-radius:var(--r);border:1px solid rgba(255,255,255,.06);background:var(--bg2)}
+.mct{font-size:11px;font-weight:700;margin-bottom:6px}
+.mcb{font-size:11px;color:var(--ink2);line-height:1.6}
+
+/* ── ARCH DIAGRAM ── */
+.arch{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;align-items:center}
+.abox{padding:10px 8px;border-radius:var(--r);border:1px solid rgba(255,255,255,.07);background:var(--bg2);text-align:center}
+.abox-t{font-size:10.5px;font-weight:700;margin-bottom:3px;line-height:1.2}
+.abox-s{font-family:var(--mono);font-size:9px;color:var(--ink3)}
+.abox.hl{background:var(--cyan2);border-color:rgba(0,229,204,.2)}
+.abox.hl .abox-t{color:var(--cyan)}
+.aarr{text-align:center;font-size:16px;color:var(--ink4)}
+
+/* ── DIVIDER ── */
+hr{border:none;border-top:1px solid rgba(255,255,255,.05);margin:18px 0}
+
+/* ── SCROLL ── */
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:var(--bg0)}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+
+/* ── ANIMATE ── */
+.fade{opacity:0;transform:translateY(8px);animation:fi .35s ease forwards}
+@keyframes fi{to{opacity:1;transform:translateY(0)}}
+.d1{animation-delay:.04s}.d2{animation-delay:.08s}.d3{animation-delay:.12s}.d4{animation-delay:.16s}.d5{animation-delay:.2s}
+
+/* ── SECTION TITLE ── */
+.stitle{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
+.sdesc{font-size:12.5px;color:var(--ink2);margin-bottom:20px;font-family:var(--serif);line-height:1.7}
+
+/* ── COMPARISON ── */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(255,255,255,.06);border-radius:var(--r2);overflow:hidden}
+.cmp-col{padding:16px 18px}
+.cmp-col:first-child{border-right:1px solid rgba(255,255,255,.06)}
+.cmp-h{font-size:11px;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.05)}
+
+/* ── INLINE MONO ── */
+im{font-family:var(--mono);font-size:10.5px;color:var(--sky);background:var(--sky2);padding:1px 5px;border-radius:3px}
+
+/* SB scrollbar fix */
+.nav{scrollbar-width:thin;scrollbar-color:var(--bg4) var(--bg1)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="brand-pill"><div class="brand-dot"></div><span>GSM · MDOOH v2</span></div>
+    <div class="brand-name">AdTech Blueprint</div>
+    <div class="brand-ver">Production-Ready · 2026</div>
+  </div>
+  <div class="nav-body">
+
+    <div class="nav-group">
+      <div class="nav-grouplabel">Foundation</div>
+      <div class="nav-item on" onclick="go('s0',this)"><div class="nav-ic">⌬</div>Problem Framing<div class="nav-badge">NEW</div></div>
+      <div class="nav-item" onclick="go('s1',this)"><div class="nav-ic">◈</div>System Architecture</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-grouplabel">Data Layer</div>
+      <div class="nav-item" onclick="go('s2',this)"><div class="nav-ic">◉</div>Feature Store Design</div>
+      <div class="nav-item" onclick="go('s3',this)"><div class="nav-ic">◉</div>Feature Engineering</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-grouplabel">Recommendation</div>
+      <div class="nav-item" onclick="go('s4',this)"><div class="nav-ic">▣</div>Candidate Generation</div>
+      <div class="nav-item" onclick="go('s5',this)"><div class="nav-ic">▣</div>Ranking Models</div>
+      <div class="nav-item" onclick="go('s6',this)"><div class="nav-ic">▣</div>Learning Loop</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-grouplabel">Cold Start</div>
+      <div class="nav-item" onclick="go('s7',this)"><div class="nav-ic">❄</div>3-Case Strategy<div class="nav-badge">NEW</div></div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-grouplabel">Real-time System</div>
+      <div class="nav-item" onclick="go('s8',this)"><div class="nav-ic">⚡</div>Serving &amp; Latency<div class="nav-badge">NEW</div></div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-grouplabel">Monetization</div>
+      <div class="nav-item" onclick="go('s9',this)"><div class="nav-ic">◎</div>Pricing &amp; Auction<div class="nav-badge">NEW</div></div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-grouplabel">Measurement</div>
+      <div class="nav-item" onclick="go('s10',this)"><div class="nav-ic">≋</div>Causal Inference<div class="nav-badge">NEW</div></div>
+    </div>
+
+  </div>
+  <div class="nav-foot">GSM · XanhSM MDOOH<br>Internal Technical Proposal<br>v2.0 · Production-Ready</div>
+</nav>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main">
+  <div class="topbar">
+    <div class="tb-left">
+      <span class="tb-root">GSM MDOOH</span>
+      <span class="tb-sep">›</span>
+      <span id="tb-cur" class="tb-cur">Problem Framing</span>
+    </div>
+    <div class="tb-right">
+      <div class="tb-pill draft"><div class="tb-dot"></div>Production Blueprint</div>
+      <div class="tb-pill live"><div class="tb-dot"></div>v2.0</div>
+    </div>
+  </div>
+
+  <div class="body">
+
+<!-- ═══════════════════════════════════════════════
+     S0 · PROBLEM FRAMING
+═══════════════════════════════════════════════ -->
+<section id="s0" class="sec on">
+<div class="hero fade">
+  <div class="hero-tag">Foundation · Module 01</div>
+  <h1 class="hero-h">Optimization Problem<br><em>Framing</em></h1>
+  <p class="hero-p">Định nghĩa bài toán như một kỹ sư sản xuất: objective function rõ ràng, constraint cứng, trade-off được định lượng. Không còn "hiển thị quảng cáo phù hợp" — mà là maximize revenue under constraints.</p>
+</div>
+
+<div class="g1 fade d1">
+  <div class="card accent-cyan">
+    <div class="ch"><div><div class="ch-t">Objective Function — Công thức chính thức</div><div class="ch-s">Cái hệ thống cần maximize mỗi impression</div></div><div class="chip chip-v">Core Math</div></div>
+    <div class="cb">
+      <div class="formula">
+<span class="cm"># PRIMARY OBJECTIVE — maximize Expected Revenue per Impression (eRPI)</span>
+
+eRPI(u, c, t) = <span class="hl">argmax</span>  Σ_{a ∈ CandidateSet}  <span class="wa">score(u, a, c, t)</span>
+
+<span class="cm">where:</span>
+  score(u, a, c, t) = P(interaction | u, a, c, t) × <span class="hl">bid(a)</span>
+                    × relevance_weight(u, a)
+                    × <span class="wa">business_priority(a)</span>
+                    - diversity_penalty(a, selected_ads)
+                    - frequency_penalty(u, a, t)
+
+<span class="cm">Biến:</span>
+  u = user feature vector      <span class="cm"># identity + behavior</span>
+  a = ad feature vector        <span class="cm"># metadata + bid</span>
+  c = context vector           <span class="cm"># GPS, POI, weather, event</span>
+  t = time vector              <span class="cm"># hour, day_type, trip_stage</span>
+
+  P(interaction | u,a,c,t)    <span class="cm"># ML model output — Phase 2</span>
+                               <span class="cm"># Rule-based proxy    — Phase 1</span>
+  bid(a)                       <span class="cm"># CPM submitted by advertiser</span>
+  relevance_weight             <span class="cm"># guardrail: prevent pure pay-to-win</span>
+  business_priority            <span class="cm"># GSM internal weighting (e.g. strategic partners)</span>
+  diversity_penalty            <span class="cm"># reduce same-brand repeats in one trip</span>
+  frequency_penalty            <span class="cm"># freq_shown(u,a, 7d) / freq_cap(a)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="g3 fade d2">
+  <div class="card">
+    <div class="ch"><div class="ch-t">Constraint cứng (Hard)</div><div class="chip chip-r">Must satisfy</div></div>
+    <div class="cb">
+      <div class="flow">
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--rose2);color:var(--rose)">C1</div><div class="fline"></div></div><div class="fc"><div class="ft">Frequency Cap</div><div class="fd">impressions(u, a, 7d) ≤ freq_cap(a). Vi phạm → loại khỏi candidate set ngay.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--rose2);color:var(--rose)">C2</div><div class="fline"></div></div><div class="fc"><div class="ft">Budget Cap</div><div class="fd">spend(a, campaign) ≤ budget(a). Hết budget → pause ngay, không serve thêm.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--rose2);color:var(--rose)">C3</div><div class="fline"></div></div><div class="fc"><div class="ft">Targeting Match</div><div class="fd">district ∈ target_districts AND hour ∈ target_hours. Hard filter, không bypass.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--rose2);color:var(--rose)">C4</div></div><div class="fc"><div class="ft">Brand Safety</div><div class="fd">Không serve 2 direct competitors trong cùng 1 trip. Lookup brand conflict matrix.</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ch-t">Constraint mềm (Soft)</div><div class="chip chip-a">Penalized</div></div>
+    <div class="cb">
+      <div class="flow">
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--gold2);color:var(--gold)">S1</div><div class="fline"></div></div><div class="fc"><div class="ft">Diversity</div><div class="fd">Không quá 2 ads cùng category trong 1 trip. Penalty tăng dần theo số lần lặp.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--gold2);color:var(--gold)">S2</div><div class="fline"></div></div><div class="fc"><div class="ft">Relevance Floor</div><div class="fd">relevance_score(u,a) ≥ 0.2 để serve. Ads không liên quan dù bid cao cũng bị penalty.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--gold2);color:var(--gold)">S3</div><div class="fline"></div></div><div class="fc"><div class="ft">Fill Rate</div><div class="fd">Phải có ≥1 ad cho mỗi impression slot. Nếu không đủ candidate → fallback chain.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--gold2);color:var(--gold)">S4</div></div><div class="fc"><div class="ft">Pacing</div><div class="fd">Budget phân bổ đều theo ngày, không burn hết trong vài giờ đầu.</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ch-t">Trade-off tam giác</div><div class="chip chip-v">Fundamental</div></div>
+    <div class="cb">
+      <div class="note note-v"><div class="note-ic">△</div><div class="note-tx"><strong>Không thể tối ưu cả 3 cùng lúc</strong>Mỗi quyết định thiết kế là một sự đánh đổi có chủ ý.</div></div>
+      <div class="matrix">
+        <div class="mcell" style="border-color:rgba(0,229,204,.2);background:var(--cyan3)"><div class="mct" style="color:var(--cyan)">↑ Relevance</div><div class="mcb">User experience tốt hơn → CTR cao hơn → nhưng fill rate giảm, revenue/slot giảm ngắn hạn</div></div>
+        <div class="mcell" style="border-color:rgba(240,165,0,.2)"><div class="mct" style="color:var(--gold)">↑ Revenue</div><div class="mcb">Ưu tiên highest bidder → fill rate cao → nhưng irrelevant ads → user experience xấu dần</div></div>
+        <div class="mcell" style="border-color:rgba(74,222,128,.2)"><div class="mct" style="color:var(--sage)">↑ Fill Rate</div><div class="mcb">Luôn có ad → serve default/brand-awareness → nhưng dilutes personalization signal</div></div>
+      </div>
+      <div class="note note-c" style="margin-top:10px"><div class="note-ic">→</div><div class="note-tx"><strong>Khuyến nghị Phase 1</strong>Ưu tiên fill rate (70%) + relevance (20%) + revenue (10%). Đảo tỉ lệ khi đủ data.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="g2 fade d3">
+  <div class="card">
+    <div class="ch"><div class="ch-t">Scoring formula — Phase 1 (rule-based)</div><div class="chip chip-c">Triển khai ngay</div></div>
+    <div class="cb">
+      <div class="formula">
+score_p1(u, a, c, t) =
+  0.40 × <span class="hl">user_match</span>(u, a)
++ 0.35 × <span class="hl">context_match</span>(c, a)
++ 0.15 × <span class="wa">bid_norm</span>(a)
++ 0.10 × <span class="hl">stage_fit</span>(t.trip_stage, a.preferred_stage)
+- penalty_freq × max(0, freq_shown(u,a,7d) - freq_cap(a)/2)
+
+<span class="cm">── user_match ────────────────────────────────</span>
+user_match = cosine_sim(u.interest_vec, a.category_vec)
+           × age_compat(u.age_bucket, a.target_age)
+           × gender_compat(u.gender, a.target_gender)
+
+<span class="cm">── context_match ──────────────────────────────</span>
+context_match = poi_match(c.nearest_poi, a.target_poi)    <span class="cm"># 0/0.5/1</span>
+              + time_match(t.hour, a.target_hours)         <span class="cm"># 0/0.5/1</span>
+              + district_match(c.district, a.districts)    <span class="cm"># 0/1</span>
+
+<span class="cm">── bid_norm ────────────────────────────────────</span>
+bid_norm = log(bid_cpm) / log(max_bid_in_pool)            <span class="cm"># [0,1]</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ch-t">Scoring formula — Phase 2 (ML-based)</div><div class="chip chip-v">Phase 2</div></div>
+    <div class="cb">
+      <div class="formula">
+score_p2(u, a, c, t) =
+  <span class="hl">P̂(click | u,a,c,t)</span> × bid(a) × <span class="wa">quality_factor(a)</span>
+
+<span class="cm">── Model output ───────────────────────────────</span>
+P̂(click) = LightGBM_ranker.predict(
+    feature_vector = [
+        user_features,      <span class="cm"># 15 dims</span>
+        ad_features,        <span class="cm"># 12 dims</span>
+        context_features,   <span class="cm"># 10 dims</span>
+        cross_features,     <span class="cm"># user×ad, ctx×ad: 8 dims</span>
+        historical_ctr(a)   <span class="cm"># ad-level smoothed CTR</span>
+    ]
+)
+
+<span class="cm">── quality_factor ─────────────────────────────</span>
+quality_factor = 0.7 + 0.3 × historical_ctr(a) / benchmark_ctr
+<span class="cm"># penalize ads with proven poor performance</span>
+<span class="cm"># even if they bid high</span>
+
+<span class="cm">── Production note ────────────────────────────</span>
+<span class="cm"># Kết hợp P̂×bid (eCPM auction) thay vì pure bid</span>
+<span class="cm"># Điều này tạo incentive cho advertiser làm creatives tốt</span>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     S1 · SYSTEM ARCHITECTURE
+═══════════════════════════════════════════════ -->
+<section id="s1" class="sec">
+<div class="hero fade"><div class="hero-tag">Foundation · Module 02</div><h1 class="hero-h">System<br><em>Architecture</em></h1><p class="hero-p">Full stack từ raw data đến màn hình tablet. Phân tách rõ offline training pipeline, online serving pipeline, và feedback loop. Mỗi component có SLA latency cụ thể.</p></div>
+
+<div class="g1 fade d1">
+  <div class="card accent-cyan">
+    <div class="ch"><div><div class="ch-t">End-to-end data flow</div><div class="ch-s">Offline → Online → Feedback</div></div></div>
+    <div class="cb">
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);margin-bottom:8px;letter-spacing:.05em">OFFLINE PIPELINE (chạy daily 02:00–04:00)</div>
+        <div class="pipe">
+          <div class="ps"><div class="pa">›</div><div class="pn">01</div><div class="pm">Raw Data Sources</div><div class="pt2">Trip API · GPS stream · POI DB · CMS logs</div></div>
+          <div class="ps"><div class="pa">›</div><div class="pn">02</div><div class="pm">Spark ETL</div><div class="pt2">Clean · Join · Aggregate · 90d window</div></div>
+          <div class="ps"><div class="pa">›</div><div class="pn">03</div><div class="pm">Feature Engineering</div><div class="pt2">Interest vec · POI embed · User cluster</div></div>
+          <div class="ps"><div class="pa">›</div><div class="pn">04</div><div class="pm">Model Training</div><div class="pt2">LightGBM Ranker · Evaluation · Gate</div></div>
+          <div class="ps"><div class="pn">05</div><div class="pm">Feature Store</div><div class="pt2">Redis (hot) · Parquet (cold)</div></div>
+        </div>
+      </div>
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);margin-bottom:8px;letter-spacing:.05em">ONLINE SERVING PIPELINE (&lt;200ms SLA)</div>
+        <div class="pipe">
+          <div class="ps"><div class="pa">›</div><div class="pn">T+0ms</div><div class="pm">Trip Event</div><div class="pt2">passenger_onboard trigger</div></div>
+          <div class="ps"><div class="pa">›</div><div class="pn">T+20ms</div><div class="pm">User Lookup</div><div class="pt2">Redis O(1) · pre-computed vector</div></div>
+          <div class="ps"><div class="pa">›</div><div class="pn">T+50ms</div><div class="pm">Context Build</div><div class="pt2">H3 POI · weather · event lookup</div></div>
+          <div class="ps"><div class="pa">›</div><div class="pn">T+90ms</div><div class="pm">Candidate Filter</div><div class="pt2">Hard constraints → 20–50 ads</div></div>
+          <div class="ps"><div class="pa">›</div><div class="pn">T+150ms</div><div class="pm">Score &amp; Rank</div><div class="pt2">Model inference → top-5 schedule</div></div>
+          <div class="ps"><div class="pn">T+180ms</div><div class="pm">Push to CMS</div><div class="pt2">4G/5G → Tablet cache</div></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);margin-bottom:8px;letter-spacing:.05em">FEEDBACK LOOP (real-time event stream)</div>
+        <div class="pipe">
+          <div class="ps"><div class="pa">›</div><div class="pn">Event</div><div class="pm">User Action</div><div class="pt2">impression · view · scan · visit</div></div>
+          <div class="ps"><div class="pa">›</div><div class="pn">Stream</div><div class="pm">Kafka Topic</div><div class="pt2">ad_events · latency &lt;1s</div></div>
+          <div class="ps"><div class="pa">›</div><div class="pn">Label</div><div class="pm">Training Labels</div><div class="pt2">positive/negative · delayed reward</div></div>
+          <div class="ps"><div class="pa">›</div><div class="pn">Store</div><div class="pm">Label Store</div><div class="pt2">72h window · join với impression log</div></div>
+          <div class="ps"><div class="pn">Train</div><div class="pm">Model Refresh</div><div class="pt2">weekly retrain · shadow mode first</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="g2 fade d2">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Component SLA &amp; tech stack</div><div class="ch-s">Mỗi layer có target latency riêng</div></div></div>
+    <div class="cb np">
+      <table class="tbl">
+        <thead><tr><th>Component</th><th>Tech</th><th>SLA</th><th>Fallback</th></tr></thead>
+        <tbody>
+          <tr><td><span class="fname">Feature Store (hot)</span></td><td>Redis Cluster</td><td><span style="color:var(--sage);font-family:var(--mono);font-size:10px">&lt;5ms p99</span></td><td>Parquet cold store</td></tr>
+          <tr><td><span class="fname">Context Service</span></td><td>Go + H3 in-memory</td><td><span style="color:var(--sage);font-family:var(--mono);font-size:10px">&lt;20ms p99</span></td><td>District-level fallback</td></tr>
+          <tr><td><span class="fname">Candidate Filter</span></td><td>Python + prebuilt index</td><td><span style="color:var(--sage);font-family:var(--mono);font-size:10px">&lt;30ms</span></td><td>No-filter top-N</td></tr>
+          <tr><td><span class="fname">Ranking Model</span></td><td>LightGBM ONNX</td><td><span style="color:var(--gold);font-family:var(--mono);font-size:10px">&lt;50ms p99</span></td><td>Rule-based scorer</td></tr>
+          <tr><td><span class="fname">Ad Serving API</span></td><td>FastAPI + uvicorn</td><td><span style="color:var(--sage);font-family:var(--mono);font-size:10px">&lt;200ms total</span></td><td>Default playlist</td></tr>
+          <tr><td><span class="fname">CMS Push</span></td><td>MQTT / 4G</td><td><span style="color:var(--gold);font-family:var(--mono);font-size:10px">&lt;500ms</span></td><td>On-device cached list</td></tr>
+          <tr><td><span class="fname">Event Stream</span></td><td>Kafka + Flink</td><td><span style="color:var(--sage);font-family:var(--mono);font-size:10px">&lt;1s e2e</span></td><td>Batch fallback 5min</td></tr>
+          <tr><td><span class="fname">Offline Training</span></td><td>Spark + MLflow</td><td><span style="color:var(--ink3);font-family:var(--mono);font-size:10px">daily 02:00</span></td><td>Skip retrain, keep old</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Fallback chain — khi model fail</div><div class="ch-s">Không bao giờ để slot trống</div></div><div class="chip chip-r">Reliability</div></div>
+    <div class="cb">
+      <div class="flow">
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">L1</div><div class="fline"></div></div><div class="fc"><div class="ft">ML Ranking Model (Phase 2)</div><div class="fd">Inference bình thường. P95 latency &lt;50ms. Nếu timeout → L2.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--sky2);color:var(--sky)">L2</div><div class="fline"></div></div><div class="fc"><div class="ft">Rule-based Scorer (Phase 1)</div><div class="fd">Không cần model. Nếu Redis down → L3.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--gold2);color:var(--gold)">L3</div><div class="fline"></div></div><div class="fc"><div class="ft">Contextual-only (time + district)</div><div class="fd">Chỉ cần server timestamp và GPS district. Nếu GPS fail → L4.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--rose2);color:var(--rose)">L4</div></div><div class="fc"><div class="ft">Default Playlist (on-device cache)</div><div class="fd">Top-10 brand awareness ads pre-loaded trên tablet. Luôn available, zero network.</div></div></div>
+      </div>
+      <div class="note note-a" style="margin-top:8px"><div class="note-ic">⚡</div><div class="note-tx"><strong>Circuit breaker pattern</strong>Nếu L1 fail rate &gt;5% trong 60s → auto switch sang L2 toàn bộ fleet, alert on-call engineer. Auto recover sau 10 phút.</div></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     S2 · FEATURE STORE DESIGN
+═══════════════════════════════════════════════ -->
+<section id="s2" class="sec">
+<div class="hero fade"><div class="hero-tag">Data Layer · Module 03</div><h1 class="hero-h">Feature Store<br><em>Design</em></h1><p class="hero-p">Mỗi feature được đánh giá theo 4 chiều: coverage rate, freshness, expected noise, và cách xử lý missing data. Không có feature nào được thêm vào mà không có kế hoạch xử lý degradation.</p></div>
+
+<div class="g1 fade d1">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">User Feature Catalog — production spec</div><div class="ch-s">Coverage, freshness, noise, missing strategy</div></div><div class="chip chip-c">User Layer</div></div>
+    <div class="cb np">
+      <table class="tbl">
+        <thead><tr><th>Feature</th><th>Coverage</th><th>Freshness</th><th>Noise Level</th><th>Missing Strategy</th></tr></thead>
+        <tbody>
+          <tr><td><span class="fname">age_bucket</span></td><td><span style="color:var(--sage)">92%</span></td><td><span class="chip chip-n">Static</span></td><td>Low — self-reported</td><td>Bucket "unknown", weight 0.5</td></tr>
+          <tr><td><span class="fname">gender</span></td><td><span style="color:var(--sage)">88%</span></td><td><span class="chip chip-n">Static</span></td><td>Low</td><td>Category "unknown", serve gender-neutral</td></tr>
+          <tr><td><span class="fname">user_tier</span></td><td><span style="color:var(--sage)">100%</span></td><td><span class="chip chip-a">Weekly</span></td><td>None</td><td>Default "new"</td></tr>
+          <tr><td><span class="fname">trips_per_week_avg</span></td><td><span style="color:var(--sage)">100%</span></td><td><span class="chip chip-a">Daily</span></td><td>Medium — seasonality</td><td>Global median imputation</td></tr>
+          <tr><td><span class="fname">peak_hour_ratio</span></td><td><span style="color:var(--gold)">78%</span> (&lt;5 trips)</td><td><span class="chip chip-a">Daily</span></td><td>High if &lt;10 trips</td><td>Shrink toward prior (0.35)</td></tr>
+          <tr><td><span class="fname">weekend_ratio</span></td><td><span style="color:var(--gold)">78%</span></td><td><span class="chip chip-a">Daily</span></td><td>High if &lt;10 trips</td><td>Shrink toward prior (0.30)</td></tr>
+          <tr><td><span class="fname">poi_affinity[5]</span></td><td><span style="color:var(--gold)">65%</span></td><td><span class="chip chip-a">Daily</span></td><td>High — POI join noise</td><td>Uniform distribution prior</td></tr>
+          <tr><td><span class="fname">dominant_zone</span></td><td><span style="color:var(--sage)">82%</span></td><td><span class="chip chip-a">Daily</span></td><td>Medium</td><td>Most frequent city district</td></tr>
+          <tr><td><span class="fname">cluster_id</span></td><td><span style="color:var(--gold)">60%</span> (&gt;10 trips)</td><td><span class="chip chip-v">Weekly</span></td><td>Low</td><td>"general" cluster (K+1)</td></tr>
+          <tr><td><span class="fname">avg_trip_duration</span></td><td><span style="color:var(--rose)">0%</span> — API missing</td><td>—</td><td>—</td><td><strong style="color:var(--rose)">BLOCK</strong> — không dùng đến khi có data</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="g1 fade d2">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Context Feature Catalog — real-time layer</div><div class="ch-s">Computed on-the-fly mỗi GPS update</div></div><div class="chip chip-a">Context Layer</div></div>
+    <div class="cb np">
+      <table class="tbl">
+        <thead><tr><th>Feature</th><th>Source</th><th>Latency</th><th>Noise/Risk</th><th>Xử lý lỗi</th></tr></thead>
+        <tbody>
+          <tr><td><span class="fname">current_district</span></td><td>GPS → reverse geocode</td><td>&lt;5ms (cache)</td><td>Low — boundary edge cases</td><td>Last valid district</td></tr>
+          <tr><td><span class="fname">nearest_poi_type</span></td><td>H3 ring lookup</td><td>&lt;10ms</td><td>Medium — stale POI data</td><td>"unknown" → contextual fallback</td></tr>
+          <tr><td><span class="fname">poi_distance_m</span></td><td>Haversine calc</td><td>&lt;2ms</td><td>Low</td><td>999m (large distance → no POI)</td></tr>
+          <tr><td><span class="fname">trip_stage</span></td><td>dist_traveled / est_total</td><td>&lt;1ms</td><td>Medium — route change</td><td>Recalculate on route_update event</td></tr>
+          <tr><td><span class="fname">hour_sin / hour_cos</span></td><td>Server timestamp</td><td>&lt;1ms</td><td>None</td><td>N/A</td></tr>
+          <tr><td><span class="fname">is_holiday</span></td><td>Holiday calendar DB</td><td>&lt;1ms (static)</td><td>None</td><td>Default false</td></tr>
+          <tr><td><span class="fname">weather_condition</span></td><td>External API (15min TTL)</td><td>&lt;1ms (cache)</td><td>Medium — API downtime</td><td>Last cached, then "unknown"</td></tr>
+          <tr><td><span class="fname">active_event_nearby</span></td><td>Event DB (daily refresh)</td><td>&lt;5ms (H3 lookup)</td><td>Low</td><td>false (no event)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="g1 fade d3">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Ad Feature Catalog — advertiser-submitted</div><div class="ch-s">Khai báo khi upload campaign, validate trước khi active</div></div><div class="chip chip-s">Ad Layer</div></div>
+    <div class="cb np">
+      <table class="tbl">
+        <thead><tr><th>Field</th><th>Type</th><th>Validation</th><th>Default nếu missing</th></tr></thead>
+        <tbody>
+          <tr><td><span class="fname">category</span></td><td>Enum[15]</td><td>Must match taxonomy</td><td>REJECT — required</td></tr>
+          <tr><td><span class="fname">target_age</span></td><td>List[Enum]</td><td>Valid age buckets</td><td>All ages</td></tr>
+          <tr><td><span class="fname">target_gender</span></td><td>List[Enum]</td><td>M/F/All</td><td>All</td></tr>
+          <tr><td><span class="fname">target_poi</span></td><td>List[Enum]</td><td>Valid POI types</td><td>All POI types</td></tr>
+          <tr><td><span class="fname">target_hours</span></td><td>List[0–23]</td><td>Non-empty</td><td>All hours</td></tr>
+          <tr><td><span class="fname">target_districts</span></td><td>List[String]</td><td>Valid district codes</td><td>All districts</td></tr>
+          <tr><td><span class="fname">bid_cpm</span></td><td>Float (VND)</td><td>≥ floor_price (5,000đ)</td><td>REJECT — required</td></tr>
+          <tr><td><span class="fname">freq_cap_weekly</span></td><td>Int</td><td>1–20</td><td>7</td></tr>
+          <tr><td><span class="fname">daily_budget</span></td><td>Float (VND)</td><td>&gt;0</td><td>REJECT — required</td></tr>
+          <tr><td><span class="fname">preferred_stage</span></td><td>Enum[early/mid/late/any]</td><td>Valid enum</td><td>any</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     S3 · FEATURE ENGINEERING
+═══════════════════════════════════════════════ -->
+<section id="s3" class="sec">
+<div class="hero fade"><div class="hero-tag">Data Layer · Module 04</div><h1 class="hero-h">Feature<br><em>Engineering</em></h1><p class="hero-p">Các kỹ thuật biến đổi feature từ raw data sang representation có ích cho model. Tập trung vào Interest Vector, POI Embedding, và temporal encoding — những thứ tạo ra lift thực sự.</p></div>
+
+<div class="g2 fade d1">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Interest Vector — từ trips đến sở thích</div><div class="ch-s">K-dim probability vector, cập nhật daily</div></div><div class="chip chip-v">Core Feature</div></div>
+    <div class="cb">
+      <p style="font-size:12px;color:var(--ink2);margin-bottom:10px;line-height:1.65">Interest vector là xác suất user quan tâm đến từng danh mục quảng cáo. Được suy ra từ lịch sử chuyến đi bằng cách map destination POI → ad category → normalize.</p>
+      <div class="code">
+<span class="cm"># Bước 1: Map mỗi trip đến POI category</span>
+<span class="kw">def</span> <span class="fn">build_interest_vector</span>(trips: List[Trip]) -> np.ndarray:
+    <span class="cm"># Category weights (prior từ business knowledge)</span>
+    prior = {<span class="str">'F&B'</span>: <span class="num">0.25</span>, <span class="str">'Travel'</span>: <span class="num">0.1</span>, <span class="str">'Finance'</span>: <span class="num">0.15</span>,
+             <span class="str">'Retail'</span>: <span class="num">0.2</span>, <span class="str">'Entertainment'</span>: <span class="num">0.15</span>, <span class="str">'Health'</span>: <span class="num">0.05</span>,
+             <span class="str">'Education'</span>: <span class="num">0.05</span>, <span class="str">'Automotive'</span>: <span class="num">0.05</span>}
+
+    counts = defaultdict(int)
+    <span class="kw">for</span> trip <span class="kw">in</span> trips:
+        poi_type = lookup_poi_category(trip.dropoff_lat, trip.dropoff_lng)
+        ad_cat = POI_TO_AD_CATEGORY[poi_type]
+        counts[ad_cat] += <span class="num">1</span>
+
+    <span class="cm"># Bayesian smoothing: blend observed với prior</span>
+    alpha = <span class="num">10</span>  <span class="cm"># equivalent to 10 "prior" observations</span>
+    n = len(trips)
+    smoothed = {}
+    <span class="kw">for</span> cat <span class="kw">in</span> prior:
+        observed = counts.get(cat, <span class="num">0</span>) / max(n, <span class="num">1</span>)
+        smoothed[cat] = (counts.get(cat, <span class="num">0</span>) + alpha * prior[cat]) / (n + alpha)
+
+    <span class="cm"># Normalize to probability simplex</span>
+    vec = np.array(list(smoothed.values()))
+    <span class="kw">return</span> vec / vec.sum()</div>
+      <div class="note note-v"><div class="note-ic">★</div><div class="note-tx"><strong>Tại sao Bayesian smoothing?</strong>User mới có ít trips → observed ratio không ổn định. Shrinkage về prior giúp cold-start users có vector hợp lý ngay từ trip thứ 1.</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">POI Embedding — dense representation</div><div class="ch-s">Word2Vec-style, train trên trip sequences</div></div><div class="chip chip-a">Embedding</div></div>
+    <div class="cb">
+      <p style="font-size:12px;color:var(--ink2);margin-bottom:10px;line-height:1.65">Thay vì one-hot encode POI type (sparse, 50+ types), train Word2Vec trên chuỗi POI mà users ghé thăm. POIs thường đi cùng nhau sẽ có embedding gần nhau.</p>
+      <div class="code">
+<span class="cm"># Train POI2Vec trên trip sequences</span>
+<span class="cm"># "Sentences" = chuỗi POI types của mỗi user theo thời gian</span>
+sentences = []
+<span class="kw">for</span> user_id <span class="kw">in</span> users:
+    poi_seq = [trip.dropoff_poi_type <span class="kw">for</span> trip
+               <span class="kw">in</span> get_trips(user_id, <span class="str">'90d'</span>)]
+    sentences.append(poi_seq)
+
+<span class="cm"># Word2Vec với skip-gram</span>
+<span class="kw">from</span> gensim.models <span class="kw">import</span> Word2Vec
+model = <span class="fn">Word2Vec</span>(
+    sentences,
+    vector_size=<span class="num">16</span>,    <span class="cm"># 16-dim embedding</span>
+    window=<span class="num">3</span>,          <span class="cm"># 3 POIs trước/sau</span>
+    min_count=<span class="num">5</span>,       <span class="cm"># ignore rare POI types</span>
+    sg=<span class="num">1</span>               <span class="cm"># skip-gram</span>
+)
+
+<span class="cm"># User POI embedding = mean of recent POIs</span>
+<span class="kw">def</span> <span class="fn">user_poi_embedding</span>(user_trips, model, k=<span class="num">20</span>):
+    recent_pois = [t.dropoff_poi_type <span class="kw">for</span> t <span class="kw">in</span> user_trips[-k:]]
+    vecs = [model.wv[p] <span class="kw">for</span> p <span class="kw">in</span> recent_pois <span class="kw">if</span> p <span class="kw">in</span> model.wv]
+    <span class="kw">return</span> np.<span class="fn">mean</span>(vecs, axis=<span class="num">0</span>) <span class="kw">if</span> vecs <span class="kw">else</span> np.<span class="fn">zeros</span>(<span class="num">16</span>)</div>
+    </div>
+  </div>
+</div>
+
+<div class="g2 fade d2">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Temporal encoding — cyclical features</div><div class="ch-s">Tránh model hiểu sai 23h và 0h là xa nhau</div></div></div>
+    <div class="cb">
+      <div class="code">
+<span class="cm"># WRONG: dùng raw hour (0–23) → model nghĩ 23 và 0 rất khác nhau</span>
+<span class="cm"># CORRECT: cyclical encoding dùng sin/cos</span>
+
+hour = <span class="num">23</span>
+hour_sin = np.<span class="fn">sin</span>(<span class="num">2</span> * np.pi * hour / <span class="num">24</span>)   <span class="cm"># -0.259</span>
+hour_cos = np.<span class="fn">cos</span>(<span class="num">2</span> * np.pi * hour / <span class="num">24</span>)   <span class="cm"># +0.966</span>
+
+hour = <span class="num">0</span>
+hour_sin = np.<span class="fn">sin</span>(<span class="num">2</span> * np.pi * <span class="num">0</span> / <span class="num">24</span>)     <span class="cm"># 0.0</span>
+hour_cos = np.<span class="fn">cos</span>(<span class="num">2</span> * np.pi * <span class="num">0</span> / <span class="num">24</span>)     <span class="cm"># 1.0</span>
+
+<span class="cm"># Khoảng cách Euclidean của 23h và 0h bây giờ ≈ 0.26 ✓</span>
+<span class="cm"># Tương tự cho day_of_week (chu kỳ 7)</span>
+dow_sin = np.<span class="fn">sin</span>(<span class="num">2</span> * np.pi * day_of_week / <span class="num">7</span>)
+dow_cos = np.<span class="fn">cos</span>(<span class="num">2</span> * np.pi * day_of_week / <span class="num">7</span>)</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Cross features — user × context interaction</div><div class="ch-s">Capture non-linear relationships</div></div><div class="chip chip-c">Engineering</div></div>
+    <div class="cb">
+      <div class="code">
+<span class="cm"># Cross features (feature interactions)</span>
+<span class="cm"># Nếu không có, model linear không capture được:</span>
+<span class="cm"># "commuter vào buổi sáng" ≠ "commuter vào buổi tối"</span>
+
+cross_features = {
+    <span class="str">'cluster_x_hour_bucket'</span>:
+        f<span class="str">"{user.cluster_id}_{hour_bucket}"</span>,
+
+    <span class="str">'poi_x_ad_category'</span>:
+        f<span class="str">"{ctx.nearest_poi_type}_{ad.category}"</span>,
+
+    <span class="str">'trip_stage_x_ad_category'</span>:
+        f<span class="str">"{ctx.trip_stage}_{ad.category}"</span>,
+
+    <span class="str">'user_tier_x_bid_bucket'</span>:
+        f<span class="str">"{user.tier}_{bid_bucket(ad.bid_cpm)}"</span>,
+
+    <span class="str">'weekend_x_entertainment'</span>:
+        int(ctx.is_weekend <span class="kw">and</span> ad.category == <span class="str">'entertainment'</span>),
+}
+
+<span class="cm"># Hash trick để handle high-cardinality</span>
+<span class="kw">import</span> hashlib
+hashed = int(hashlib.<span class="fn">md5</span>(key.encode()).<span class="fn">hexdigest</span>(), <span class="num">16</span>) % <span class="num">100000</span></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     S4 · CANDIDATE GENERATION
+═══════════════════════════════════════════════ -->
+<section id="s4" class="sec">
+<div class="hero fade"><div class="hero-tag">Recommendation · Module 05</div><h1 class="hero-h">Candidate<br><em>Generation</em></h1><p class="hero-p">Từ toàn bộ ad pool (có thể hàng nghìn ads), lọc xuống còn 20–50 candidates đủ điều kiện trong &lt;30ms. Bước này tập trung vào recall (không bỏ sót good ads), không phải precision.</p></div>
+
+<div class="g1 fade d1">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Two-stage retrieval pipeline</div><div class="ch-s">Hard filter → Soft pre-rank → Top-50 → Full ranking</div></div></div>
+    <div class="cb">
+      <div class="flow">
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--rose2);color:var(--rose)">①</div><div class="fline"></div></div><div class="fc"><div class="ft">Hard filter — loại ngay, không score</div><div class="fd">budget_remaining &gt; 0 AND freq_shown(u,a,7d) &lt; freq_cap(a) AND district ∈ target_districts AND ad.status = ACTIVE. Kết quả: từ N ads → ~200 ads.</div>
+          <div class="code" style="margin-top:8px">
+<span class="cm"># Prebuilt inverted index: district → [ad_ids]</span>
+<span class="cm"># + Bloom filter cho freq cap check (O(1))</span>
+candidates = district_index[ctx.district]
+candidates = [a <span class="kw">for</span> a <span class="kw">in</span> candidates
+              <span class="kw">if not</span> freq_bloom.check(user_id, a.id)
+              <span class="kw">and</span> budget_cache[a.campaign_id] > <span class="num">0</span>]</div>
+        </div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--gold2);color:var(--gold)">②</div><div class="fline"></div></div><div class="fc"><div class="ft">Soft pre-rank — nhanh, approximate</div><div class="fd">Dùng category match + time match (pre-computed lookup table) để sort 200 candidates. Lấy top-50. Không cần full scoring.</div>
+          <div class="code" style="margin-top:8px">
+<span class="cm"># Pre-rank score (approximate, no ML)</span>
+pre_score = (
+    category_compat[user.cluster_id][ad.category]   <span class="cm"># lookup table</span>
+    + time_compat[hour_bucket][ad.target_hours]      <span class="cm"># lookup table</span>
+    + poi_compat[ctx.nearest_poi][ad.target_poi]     <span class="cm"># lookup table</span>
+)
+top50 = sorted(candidates, key=<span class="kw">lambda</span> a: pre_score(a))[-<span class="num">50</span>:]</div>
+        </div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">③</div></div><div class="fc"><div class="ft">Full ranking — chỉ trên top-50</div><div class="fd">Apply full scoring formula (Phase 1) hoặc ML model inference (Phase 2) trên 50 candidates. Output: top-5 ads cho toàn bộ chuyến đi.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="g2 fade d2">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Ad pool indexing strategy</div><div class="ch-s">Cấu trúc dữ liệu để filter nhanh</div></div></div>
+    <div class="cb">
+      <div class="note note-c"><div class="note-ic">★</div><div class="note-tx"><strong>Inverted index by district</strong>Mỗi district → list of active ad_ids targeting đó. Update real-time khi campaign start/stop/budget-out. Lookup O(1).</div></div>
+      <div class="code">
+<span class="cm"># Cấu trúc index trong Redis</span>
+<span class="cm"># Key: "ads:district:{district_code}"</span>
+<span class="cm"># Value: Sorted Set, score = bid_cpm</span>
+
+redis.<span class="fn">zadd</span>(<span class="str">f"ads:district:Q1"</span>, {ad_id: bid_cpm})
+
+<span class="cm"># Lấy top 200 ads by bid (pre-filtered)</span>
+candidates = redis.<span class="fn">zrevrange</span>(
+    <span class="str">f"ads:district:{district}"</span>,
+    start=<span class="num">0</span>, end=<span class="num">199</span>,
+    withscores=<span class="kw">True</span>
+)
+
+<span class="cm"># Additional indexes</span>
+<span class="cm"># "ads:hour:{0-23}"    → ads targeting this hour</span>
+<span class="cm"># "ads:poi:{poi_type}" → ads targeting this POI type</span>
+<span class="cm"># "ads:active"         → all active campaign ids</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Trip-level ad schedule</div><div class="ch-s">Không phải impression-by-impression, mà plan cả trip</div></div><div class="chip chip-c">Design</div></div>
+    <div class="cb">
+      <p style="font-size:12px;color:var(--ink2);margin-bottom:10px;line-height:1.65">Thay vì quyết định mỗi slot riêng lẻ, hệ thống plan ngay khi trip bắt đầu: ad nào ở stage nào. Giảm latency mid-trip và đảm bảo stage-appropriate content.</p>
+      <div class="code">
+<span class="cm"># Output của ranking: ad schedule cho trip</span>
+ad_schedule = {
+    <span class="str">"trip_id"</span>: <span class="str">"t_abc123"</span>,
+    <span class="str">"ads"</span>: [
+        {<span class="str">"ad_id"</span>: <span class="str">"a_001"</span>, <span class="str">"stage"</span>: <span class="str">"early"</span>,
+         <span class="str">"trigger"</span>: <span class="str">"trip_start+60s"</span>},
+        {<span class="str">"ad_id"</span>: <span class="str">"a_042"</span>, <span class="str">"stage"</span>: <span class="str">"mid"</span>,
+         <span class="str">"trigger"</span>: <span class="str">"progress&gt;0.35"</span>},
+        {<span class="str">"ad_id"</span>: <span class="str">"a_015"</span>, <span class="str">"stage"</span>: <span class="str">"near_dest"</span>,
+         <span class="str">"trigger"</span>: <span class="str">"progress&gt;0.80"</span>},
+    ],
+    <span class="str">"geo_triggers"</span>: [
+        {<span class="str">"ad_id"</span>: <span class="str">"a_099"</span>,   <span class="cm"># café nearby</span>
+         <span class="str">"trigger"</span>: <span class="str">"enter_geofence:highlands_q1"</span>}
+    ]
+}</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     S5 · RANKING MODELS
+═══════════════════════════════════════════════ -->
+<section id="s5" class="sec">
+<div class="hero fade"><div class="hero-tag">Recommendation · Module 06</div><h1 class="hero-h">Ranking<br><em>Models</em></h1><p class="hero-p">Hai phase với model ngày càng phức tạp. Phase 1 deployable ngay với zero feedback data. Phase 2 khi đủ labels — với evaluation framework rõ ràng trước khi ship.</p></div>
+
+<div class="g1 fade d1">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Phase 1 — Rule-based + Logistic Regression</div><div class="ch-s">Deployable week 1. Không cần feedback data.</div></div><div class="chip chip-c">Deploy Now</div></div>
+    <div class="cb">
+      <div class="g2" style="margin-bottom:0">
+        <div>
+          <div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--ink)">Stage A — Pure rule-based (tuần 1–4)</div>
+          <div class="code">
+<span class="cm"># Weighted sum scorer</span>
+<span class="kw">def</span> <span class="fn">score_p1a</span>(u, a, c, t):
+    s = (<span class="num">0.40</span> * user_match(u, a)
+       + <span class="num">0.35</span> * context_match(c, a)
+       + <span class="num">0.15</span> * bid_norm(a)
+       + <span class="num">0.10</span> * stage_fit(t, a))
+    s -= freq_penalty(u, a)
+    <span class="cm"># Apply hard constraints</span>
+    <span class="kw">if</span> violates_hard_constraint(u, a, c):
+        <span class="kw">return</span> -<span class="num">999</span>
+    <span class="kw">return</span> s</div>
+          <div style="font-size:11px;font-weight:700;margin:12px 0 8px;color:var(--ink)">Stage B — Logistic Regression (tháng 2–3)</div>
+          <div class="code">
+<span class="cm"># Khi đủ ~5,000 labeled impressions</span>
+<span class="cm"># LR nhanh, interpretable, đủ tốt cho giai đoạn này</span>
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+<span class="kw">from</span> sklearn.calibration <span class="kw">import</span> CalibratedClassifierCV
+
+lr = <span class="fn">LogisticRegression</span>(C=<span class="num">0.1</span>, class_weight=<span class="str">'balanced'</span>)
+calibrated = <span class="fn">CalibratedClassifierCV</span>(lr, cv=<span class="num">5</span>, method=<span class="str">'isotonic'</span>)
+calibrated.<span class="fn">fit</span>(X_train, y_train)
+
+<span class="cm"># Calibration quan trọng: P̂ phải là true probability</span>
+<span class="cm"># để eCPM = P̂ × bid có ý nghĩa tài chính</span></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;margin-bottom:8px;color:var(--ink)">Phase 2 — LightGBM Ranker (tháng 4+)</div>
+          <div class="code">
+<span class="cm"># Khi đủ ~50,000 labeled impressions</span>
+<span class="kw">import</span> lightgbm <span class="kw">as</span> lgb
+
+<span class="cm"># LambdaRank objective — optimize NDCG directly</span>
+params = {
+    <span class="str">'objective'</span>: <span class="str">'lambdarank'</span>,
+    <span class="str">'metric'</span>: <span class="str">'ndcg'</span>,
+    <span class="str">'ndcg_eval_at'</span>: [<span class="num">1</span>, <span class="num">3</span>, <span class="num">5</span>],
+    <span class="str">'num_leaves'</span>: <span class="num">63</span>,
+    <span class="str">'learning_rate'</span>: <span class="num">0.05</span>,
+    <span class="str">'feature_fraction'</span>: <span class="num">0.8</span>,
+    <span class="str">'min_child_samples'</span>: <span class="num">30</span>,
+    <span class="str">'label_gain'</span>: [<span class="num">0</span>, <span class="num">1</span>, <span class="num">3</span>, <span class="num">7</span>],  <span class="cm"># impression=0, view=1, click=3, scan=7</span>
+}
+
+<span class="cm"># Group by: each trip = one query</span>
+dtrain = lgb.<span class="fn">Dataset</span>(X_train, y_train, group=trip_group_sizes)
+model = lgb.<span class="fn">train</span>(params, dtrain, num_boost_round=<span class="num">300</span>,
+                  valid_sets=[dval], callbacks=[lgb.<span class="fn">early_stopping</span>(<span class="num">20</span>)])</div>
+          <div class="note note-v" style="margin-top:8px"><div class="note-ic">★</div><div class="note-tx"><strong>Contextual Bandit (Phase 2B)</strong>Sau ~3 tháng data: dùng LinUCB hoặc Neural Bandit để balance exploration/exploitation. Tự động thử ads mới thay vì phải manually adjust.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="g1 fade d2">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Offline evaluation gate — phải pass trước khi deploy</div><div class="ch-s">Không ship model nếu không qua gate này</div></div><div class="chip chip-r">Quality Gate</div></div>
+    <div class="cb np">
+      <table class="tbl">
+        <thead><tr><th>Metric</th><th>Description</th><th>Minimum Threshold</th><th>Target</th></tr></thead>
+        <tbody>
+          <tr><td><span class="fname">AUC-ROC</span></td><td>Discriminability — khả năng phân biệt good vs bad ads</td><td><span style="color:var(--gold);font-family:var(--mono);font-size:11px">&gt;0.68</span></td><td>&gt;0.75</td></tr>
+          <tr><td><span class="fname">Log-loss</span></td><td>Calibration quality — P̂ có đúng là true probability không</td><td><span style="color:var(--gold);font-family:var(--mono);font-size:11px">&lt;0.35</span></td><td>&lt;0.28</td></tr>
+          <tr><td><span class="fname">NDCG@5</span></td><td>Ranking quality — top 5 ads có relevant không</td><td><span style="color:var(--gold);font-family:var(--mono);font-size:11px">&gt;0.55</span></td><td>&gt;0.65</td></tr>
+          <tr><td><span class="fname">Coverage</span></td><td>% ads trong catalog được serve ít nhất 1 lần/ngày</td><td><span style="color:var(--gold);font-family:var(--mono);font-size:11px">&gt;75%</span></td><td>&gt;85%</td></tr>
+          <tr><td><span class="fname">Avg fill rate</span></td><td>% impression slots được fill (vs trống)</td><td><span style="color:var(--rose);font-family:var(--mono);font-size:11px">&gt;95%</span></td><td>&gt;98%</td></tr>
+          <tr><td><span class="fname">P99 inference latency</span></td><td>Worst-case latency của model inference</td><td><span style="color:var(--rose);font-family:var(--mono);font-size:11px">&lt;80ms</span></td><td>&lt;50ms</td></tr>
+          <tr><td><span class="fname">Regret vs Phase 1</span></td><td>Offline replay: Phase 2 có tốt hơn Phase 1 không</td><td><span style="color:var(--gold);font-family:var(--mono);font-size:11px">&gt;+5% NDCG</span></td><td>&gt;+10%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     S6 · LEARNING LOOP
+═══════════════════════════════════════════════ -->
+<section id="s6" class="sec">
+<div class="hero fade"><div class="hero-tag">Recommendation · Module 07</div><h1 class="hero-h">Learning<br><em>Loop &amp; Feedback</em></h1><p class="hero-p">Hệ thống tự cải thiện theo thời gian. Định nghĩa rõ feedback signals theo cấp độ, cách label được tạo, và khi nào thì retrain.</p></div>
+
+<div class="g2 fade d1">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Feedback signal hierarchy</div><div class="ch-s">Từ weak đến strong — trade-off volume vs quality</div></div></div>
+    <div class="cb np">
+      <table class="tbl">
+        <thead><tr><th>Signal</th><th>Label</th><th>Volume</th><th>Strength</th><th>Delay</th></tr></thead>
+        <tbody>
+          <tr><td><span class="fname">Impression</span></td><td>0 (negative)</td><td><span style="color:var(--sage)">100%</span></td><td>Weak — baseline</td><td>Ngay</td></tr>
+          <tr><td><span class="fname">View &gt;80%</span></td><td>1 (soft positive)</td><td><span style="color:var(--sage)">~40%</span></td><td>Weak-medium</td><td>Ngay</td></tr>
+          <tr><td><span class="fname">QR Scan</span></td><td>3 (strong positive)</td><td><span style="color:var(--gold)">~2%</span></td><td>Strong</td><td>Ngay</td></tr>
+          <tr><td><span class="fname">App push tap</span></td><td>2 (medium positive)</td><td><span style="color:var(--gold)">~5%</span></td><td>Medium</td><td>&lt;30s</td></tr>
+          <tr><td><span class="fname">Store visit</span></td><td>7 (very strong)</td><td><span style="color:var(--rose)">~0.5%</span></td><td>Very strong</td><td>72h</td></tr>
+          <tr><td><span class="fname">Skip/dismiss</span></td><td>-1 (strong negative)</td><td><span style="color:var(--gold)">~15%</span></td><td>Strong</td><td>Ngay</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Delayed reward problem</div><div class="ch-s">Store visit label đến sau 72h — cần xử lý đặc biệt</div></div><div class="chip chip-a">Complex</div></div>
+    <div class="cb">
+      <div class="note note-a"><div class="note-ic">⚠</div><div class="note-tx"><strong>Vấn đề</strong>Training data ngày hôm nay chưa có store visit labels (phải đợi 72h). Nếu train ngay → model thiên về negative (không thấy positive).</div></div>
+      <div class="code" style="margin-top:10px">
+<span class="cm"># Solution: Delayed label joining với join window</span>
+
+<span class="cm"># 1. Log impression ngay (t=0)</span>
+impression_log(user_id, ad_id, trip_id, timestamp)
+
+<span class="cm"># 2. Log store visit khi xảy ra (t+0 đến t+72h)</span>
+store_visit_log(user_id, poi_id, timestamp)
+
+<span class="cm"># 3. Join sau 72h + 1h buffer</span>
+<span class="cm"># Chỉ join impressions đã đủ 73h tuổi</span>
+labeled_data = impressions.join(
+    store_visits,
+    on=[<span class="str">'user_id'</span>],
+    how=<span class="str">'left'</span>,
+    window=<span class="str">'73h'</span>
+)
+labeled_data[<span class="str">'label'</span>] = labeled_data[<span class="str">'store_visit'</span>].fillna(<span class="num">0</span>)
+
+<span class="cm"># 4. Train chỉ trên data đủ 73h tuổi</span>
+<span class="cm"># → Labels đã ổn định, không bị undercount</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="g1 fade d2">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Retrain cadence &amp; drift detection</div><div class="ch-s">Khi nào train lại? Làm sao biết model đang xấu đi?</div></div><div class="chip chip-v">MLOps</div></div>
+    <div class="cb">
+      <div class="g3" style="margin-bottom:0">
+        <div>
+          <div style="font-size:11px;font-weight:700;margin-bottom:8px">Scheduled retrain</div>
+          <div class="flow">
+            <div class="fi"><div class="fl"><div class="fn2" style="background:var(--bg3);color:var(--ink2);border:1px solid rgba(255,255,255,.08)">W</div><div class="fline"></div></div><div class="fc"><div class="ft">Weekly (Sunday 02:00)</div><div class="fd">Full retrain với 90d data. Shadow mode 24h trước khi promote.</div></div></div>
+            <div class="fi"><div class="fl"><div class="fn2" style="background:var(--bg3);color:var(--ink2);border:1px solid rgba(255,255,255,.08)">D</div></div><div class="fc"><div class="ft">Daily fine-tune</div><div class="fd">Incremental update với 7d data. Chỉ adjust weights, không thay structure.</div></div></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;margin-bottom:8px">Drift detection alerts</div>
+          <div class="flow">
+            <div class="fi"><div class="fl"><div class="fn2" style="background:var(--rose2);color:var(--rose)">!</div><div class="fline"></div></div><div class="fc"><div class="ft">CTR drops &gt;20% vs 7d avg</div><div class="fd">Trigger emergency retrain + alert.</div></div></div>
+            <div class="fi"><div class="fl"><div class="fn2" style="background:var(--gold2);color:var(--gold)">!</div><div class="fline"></div></div><div class="fc"><div class="ft">Feature distribution shift</div><div class="fd">PSI &gt; 0.2 cho bất kỳ feature nào.</div></div></div>
+            <div class="fi"><div class="fl"><div class="fn2" style="background:var(--gold2);color:var(--gold)">!</div></div><div class="fc"><div class="ft">Model AUC decay</div><div class="fd">AUC trên validation window giảm &gt;0.03.</div></div></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;margin-bottom:8px">Model promotion gate</div>
+          <div class="flow">
+            <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">1</div><div class="fline"></div></div><div class="fc"><div class="ft">Shadow mode 24h</div><div class="fd">Mô hình mới chạy song song, không serve thật, so sánh scores.</div></div></div>
+            <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">2</div><div class="fline"></div></div><div class="fc"><div class="ft">Canary 5% traffic</div><div class="fd">Serve thật cho 5% users. Monitor fill rate và CTR 2h.</div></div></div>
+            <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">3</div></div><div class="fc"><div class="ft">Full rollout</div><div class="fd">Nếu metrics ổn → 100%. Có thể auto rollback nếu CTR giảm.</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     S7 · COLD START — 3 CASES
+═══════════════════════════════════════════════ -->
+<section id="s7" class="sec">
+<div class="hero fade"><div class="hero-tag">Cold Start · Module 08</div><h1 class="hero-h">3-Case Cold<br><em>Start Strategy</em></h1><p class="hero-p">Ba tình huống cold start hoàn toàn khác nhau và cần chiến lược riêng: new user (không biết sở thích), new ad (không biết hiệu quả), new location (không có historical data).</p></div>
+
+<div class="g1 fade d1">
+  <div class="card accent-cyan">
+    <div class="ch"><div><div class="ch-t">Case 1 — New User</div><div class="ch-s">Người dùng lần đầu dùng XanhSM</div></div><div class="chip chip-c">Most Common</div></div>
+    <div class="cb">
+      <div class="g3" style="margin-bottom:10px">
+        <div style="padding:12px;background:var(--bg2);border-radius:var(--r);border:1px solid rgba(255,255,255,.06)">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);margin-bottom:6px">Trip 1–4</div>
+          <div style="font-size:11.5px;font-weight:700;color:var(--ink);margin-bottom:4px">Demographic proxy</div>
+          <div style="font-size:11px;color:var(--ink2);line-height:1.6">Dùng age_bucket + gender từ đăng ký. Interest vector = prior distribution. Kết hợp full context matching.</div>
+        </div>
+        <div style="padding:12px;background:var(--bg2);border-radius:var(--r);border:1px solid rgba(255,255,255,.06)">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);margin-bottom:6px">Trip 5–9</div>
+          <div style="font-size:11.5px;font-weight:700;color:var(--ink);margin-bottom:4px">Pattern emergence</div>
+          <div style="font-size:11px;color:var(--ink2);line-height:1.6">Bắt đầu thấy pattern (peak hour, zones). Interest vector bắt đầu hội tụ. Bayesian update mỗi trip.</div>
+        </div>
+        <div style="padding:12px;background:var(--cyan3);border-radius:var(--r);border:1px solid rgba(0,229,204,.15)">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--cyan);margin-bottom:6px">Trip 10+</div>
+          <div style="font-size:11.5px;font-weight:700;color:var(--cyan);margin-bottom:4px">Cluster assignment</div>
+          <div style="font-size:11px;color:var(--ink2);line-height:1.6">Đủ data để KNN assign vào cluster. Full personalization. Thoát cold start.</div>
+        </div>
+      </div>
+      <div class="code">
+<span class="cm"># GSM lợi thế: age + gender từ trip 1</span>
+<span class="cm"># Hệ thống không hoàn toàn blind như MDOOH network thông thường</span>
+
+<span class="kw">def</span> <span class="fn">new_user_vector</span>(user: User) -> dict:
+    <span class="kw">return</span> {
+        <span class="str">'age_bucket'</span>: user.age_bucket,        <span class="cm"># từ đăng ký</span>
+        <span class="str">'gender'</span>: user.gender,                <span class="cm"># từ đăng ký</span>
+        <span class="str">'interest_vec'</span>: PRIOR[user.age_bucket][user.gender], <span class="cm"># lookup table</span>
+        <span class="str">'trips_per_week'</span>: <span class="num">0</span>,                  <span class="cm"># unknown → will update</span>
+        <span class="str">'cluster_id'</span>: <span class="str">'general'</span>,             <span class="cm"># default cluster</span>
+        <span class="str">'confidence'</span>: <span class="str">'low'</span>,                 <span class="cm"># flag for downstream</span>
+    }
+
+<span class="cm"># Bayesian update sau mỗi trip</span>
+<span class="kw">def</span> <span class="fn">update_interest</span>(current_vec, new_trip, alpha=<span class="num">0.3</span>):
+    poi_signal = get_poi_category(new_trip.dropoff)
+    new_obs = ONE_HOT[poi_signal]
+    <span class="kw">return</span> (<span class="num">1</span> - alpha) * current_vec + alpha * new_obs</div>
+    </div>
+  </div>
+</div>
+
+<div class="g2 fade d2">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Case 2 — New Ad</div><div class="ch-s">Campaign mới, chưa có historical CTR</div></div><div class="chip chip-a">Exploration</div></div>
+    <div class="cb">
+      <div class="note note-a"><div class="note-ic">⚠</div><div class="note-tx"><strong>Vấn đề</strong>Model dùng historical_ctr(a) làm feature. Ad mới không có CTR → bị underestimate → không bao giờ được serve → không bao giờ có data. Vòng tròn chết.</div></div>
+      <div class="flow" style="margin-top:10px">
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--gold2);color:var(--gold)">1</div><div class="fline"></div></div><div class="fc"><div class="ft">Optimistic initialization</div><div class="fd">historical_ctr(a_new) = category_avg_ctr × 1.1. Tặng 10% bonus để đảm bảo ad mới được thử.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--gold2);color:var(--gold)">2</div><div class="fline"></div></div><div class="fc"><div class="ft">Exploration budget</div><div class="fd">Reserve 10% impression slots cho ads có &lt;500 impressions. Ưu tiên thử ads mới trong slots này.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--gold2);color:var(--gold)">3</div></div><div class="fc"><div class="ft">Rapid evaluation (72h)</div><div class="fd">Sau 500 impressions, compare CTR vs optimistic_init. Nếu dưới -50% → flag review. Nếu ổn → dùng observed CTR.</div></div></div>
+      </div>
+      <div class="code" style="margin-top:8px">
+<span class="cm"># UCB-style exploration bonus cho new ads</span>
+exploration_bonus = beta * sqrt(log(total_impressions) / (ad_impressions + 1))
+score_with_exploration = base_score + exploration_bonus
+<span class="cm"># beta: exploration parameter, tune theo business risk tolerance</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Case 3 — New Location/Context</div><div class="ch-s">Khu vực mới, POI mới, giờ giấc bất thường</div></div><div class="chip chip-v">Contextual</div></div>
+    <div class="cb">
+      <div class="note note-v"><div class="note-ic">ℹ</div><div class="note-tx"><strong>Ví dụ</strong>XanhSM mở rộng sang tỉnh mới. Không có historical trip data, không có POI calibration, không có district baseline CTR.</div></div>
+      <div class="flow" style="margin-top:10px">
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--violet2);color:var(--violet)">1</div><div class="fline"></div></div><div class="fc"><div class="ft">Geographic transfer learning</div><div class="fd">Map sang tỉnh tương đồng đã có data. Dùng POI density, income proxy, urban/rural ratio để tìm "nearest neighbor" province.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--violet2);color:var(--violet)">2</div><div class="fline"></div></div><div class="fc"><div class="ft">Context-only serving</div><div class="fd">Không dùng user cluster (không calibrated). Score = context_match + bid. An toàn nhất.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--violet2);color:var(--violet)">3</div></div><div class="fc"><div class="ft">Rapid calibration (30 ngày)</div><div class="fd">Collect impressions và feedback. Sau 30 ngày có đủ data để build district-specific performance baseline.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     S8 · REAL-TIME SERVING
+═══════════════════════════════════════════════ -->
+<section id="s8" class="sec">
+<div class="hero fade"><div class="hero-tag">Real-time System · Module 09</div><h1 class="hero-h">Serving &amp;<br><em>Latency Design</em></h1><p class="hero-p">Production serving với SLA 200ms end-to-end. Từng millisecond được phân bổ cho từng component. Không có "magic" — chỉ có pre-computation, caching, và circuit breaker.</p></div>
+
+<div class="g1 fade d1">
+  <div class="card accent-gold">
+    <div class="ch"><div><div class="ch-t">Latency budget breakdown — 200ms SLA</div><div class="ch-s">Phân bổ ms cho từng component</div></div><div class="chip chip-a">Critical Path</div></div>
+    <div class="cb">
+      <div style="margin-bottom:16px">
+        <div class="bar-row"><span class="bar-lbl">Network (client→server)</span><div class="bar-track"><div class="bar-fill" style="width:10%;background:var(--ink3)"></div></div><span class="bar-val">20ms</span></div>
+        <div class="bar-row"><span class="bar-lbl">User feature lookup</span><div class="bar-track"><div class="bar-fill" style="width:3%;background:var(--sage)"></div></div><span class="bar-val">5ms</span></div>
+        <div class="bar-row"><span class="bar-lbl">Context computation</span><div class="bar-track"><div class="bar-fill" style="width:10%;background:var(--sage)"></div></div><span class="bar-val">20ms</span></div>
+        <div class="bar-row"><span class="bar-lbl">Candidate filtering</span><div class="bar-track"><div class="bar-fill" style="width:15%;background:var(--sky)"></div></div><span class="bar-val">30ms</span></div>
+        <div class="bar-row"><span class="bar-lbl">Model inference</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:var(--gold)"></div></div><span class="bar-val">50ms</span></div>
+        <div class="bar-row"><span class="bar-lbl">Business rules apply</span><div class="bar-track"><div class="bar-fill" style="width:5%;background:var(--sage)"></div></div><span class="bar-val">10ms</span></div>
+        <div class="bar-row"><span class="bar-lbl">Response serialize</span><div class="bar-track"><div class="bar-fill" style="width:3%;background:var(--sage)"></div></div><span class="bar-val">5ms</span></div>
+        <div class="bar-row"><span class="bar-lbl">Network (server→client)</span><div class="bar-track"><div class="bar-fill" style="width:20%;background:var(--ink3)"></div></div><span class="bar-val">40ms</span></div>
+        <div class="bar-row"><span class="bar-lbl">Buffer/margin</span><div class="bar-track"><div class="bar-fill" style="width:10%;background:rgba(255,255,255,.1)"></div></div><span class="bar-val">20ms</span></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg0);border-radius:var(--r);border:1px solid rgba(255,255,255,.06)">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--ink2)">Total budget</span>
+        <span style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--gold)">200ms</span>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--sage)">SLA: p95 ≤ 200ms · p99 ≤ 350ms</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="g2 fade d2">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Pre-computation strategy</div><div class="ch-s">Làm offline để online nhanh</div></div></div>
+    <div class="cb">
+      <div class="flow">
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">①</div><div class="fline"></div></div><div class="fc"><div class="ft">User vectors — daily batch</div><div class="fd">Feature engineering chạy offline 02:00. Output lưu vào Redis với TTL 25h. Online chỉ cần GET.</div>
+          <div class="code" style="margin-top:6px">
+<span class="cm"># Redis structure</span>
+<span class="cm"># Key: "user:{user_token}"</span>
+<span class="cm"># Value: JSON-encoded feature vector</span>
+<span class="cm"># TTL: 90000s (25 hours)</span>
+redis.setex(<span class="str">f"user:{token}"</span>, <span class="num">90000</span>, vector_json)</div>
+        </div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">②</div><div class="fline"></div></div><div class="fc"><div class="ft">H3 POI index — in-memory</div><div class="fd">Load toàn bộ POI database vào RAM của context service khi startup. ~50MB cho HCMC. H3 ring query O(1).</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">③</div><div class="fline"></div></div><div class="fc"><div class="ft">Model ONNX export</div><div class="fd">Convert LightGBM sang ONNX Runtime. Inference ~10–30ms thay vì ~80ms với Python LightGBM.</div>
+          <div class="code" style="margin-top:6px">
+<span class="kw">import</span> onnxruntime <span class="kw">as</span> ort
+session = ort.<span class="fn">InferenceSession</span>(<span class="str">"ranker.onnx"</span>,
+    providers=[<span class="str">'CPUExecutionProvider'</span>])
+<span class="cm"># p99: 28ms vs 82ms (native Python)</span></div>
+        </div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">④</div></div><div class="fc"><div class="ft">Candidate pre-filtering index</div><div class="fd">Redis Sorted Set per district, pre-sorted by bid. First-pass filter = Redis ZREVRANGE O(log N).</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">API design — serving endpoint</div><div class="ch-s">Contract rõ ràng giữa serving service và CMS</div></div></div>
+    <div class="cb">
+      <div class="code">
+<span class="cm"># POST /v1/ads/schedule</span>
+<span class="cm"># Request</span>
+{
+    <span class="str">"trip_id"</span>: <span class="str">"t_abc123"</span>,
+    <span class="str">"user_token"</span>: <span class="str">"sha256_xyz"</span>,
+    <span class="str">"pickup_lat"</span>: <span class="num">10.7769</span>,
+    <span class="str">"pickup_lng"</span>: <span class="num">106.7009</span>,
+    <span class="str">"dropoff_lat"</span>: <span class="num">10.8231</span>,  <span class="cm"># optional</span>
+    <span class="str">"dropoff_lng"</span>: <span class="num">106.6297</span>,  <span class="cm"># optional</span>
+    <span class="str">"vehicle_id"</span>: <span class="str">"v_001"</span>,
+    <span class="str">"timestamp_iso"</span>: <span class="str">"2026-03-09T08:32:00+07:00"</span>
+}
+
+<span class="cm"># Response (≤200ms SLA)</span>
+{
+    <span class="str">"trip_id"</span>: <span class="str">"t_abc123"</span>,
+    <span class="str">"schedule"</span>: [
+        {<span class="str">"ad_id"</span>: <span class="str">"a_001"</span>, <span class="str">"creative_url"</span>: <span class="str">"cdn.gsm/..."</span>,
+         <span class="str">"trigger"</span>: <span class="str">"trip_start+60s"</span>, <span class="str">"stage"</span>: <span class="str">"early"</span>},
+        {<span class="str">"ad_id"</span>: <span class="str">"a_042"</span>, <span class="str">"creative_url"</span>: <span class="str">"cdn.gsm/..."</span>,
+         <span class="str">"trigger"</span>: <span class="str">"progress>0.35"</span>, <span class="str">"stage"</span>: <span class="str">"mid"</span>},
+    ],
+    <span class="str">"serving_model"</span>: <span class="str">"p2_lgbm_v12"</span>,   <span class="cm"># for debugging</span>
+    <span class="str">"fallback_level"</span>: <span class="str">"L1"</span>,             <span class="cm"># which fallback used</span>
+    <span class="str">"latency_ms"</span>: <span class="num">142</span>
+}</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     S9 · PRICING & AUCTION
+═══════════════════════════════════════════════ -->
+<section id="s9" class="sec">
+<div class="hero fade"><div class="hero-tag">Monetization · Module 10</div><h1 class="hero-h">Pricing, Auction<br><em>&amp; Budget Control</em></h1><p class="hero-p">Cơ chế kiếm tiền: làm thế nào để maximize revenue cho GSM trong khi đảm bảo advertiser thấy ROI tốt và user không bị bombard với irrelevant ads.</p></div>
+
+<div class="g2 fade d1">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Auction mechanism — Generalized Second Price</div><div class="ch-s">eCPM-based, không phải pure bid-based</div></div><div class="chip chip-a">GSP Auction</div></div>
+    <div class="cb">
+      <div class="note note-a"><div class="note-ic">★</div><div class="note-tx"><strong>Tại sao eCPM thay vì CPM?</strong>Nếu chỉ auction theo bid → advertiser với budget lớn luôn thắng → relevance xấu → CTR giảm dần → advertiser rời đi. eCPM tạo incentive cho creative tốt.</div></div>
+      <div class="formula" style="margin-top:10px">
+<span class="cm"># eCPM = Estimated CTR × Bid × 1000</span>
+eCPM(a) = <span class="hl">P̂(click | u,a,c,t)</span> × bid_cpm(a) × quality_factor(a)
+
+<span class="cm"># Winner = highest eCPM</span>
+winner = argmax_{a ∈ ranked_set} eCPM(a)
+
+<span class="cm"># Charge = Second-price (GSP)</span>
+<span class="cm"># Advertiser trả bằng giá của người thứ 2 — không khuyến khích bid ảo</span>
+charge_cpm = eCPM(runner_up) / P̂(click | winner) + 0.01
+
+<span class="cm"># Floor price = minimum acceptable CPM</span>
+<span class="cm"># Nếu không ai bid ≥ floor → serve PSA (public service)</span>
+floor_price = 5000  <span class="cm"># VND, configurable per district/time</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Budget pacing — smooth delivery</div><div class="ch-s">Tránh burn hết budget trong vài giờ đầu ngày</div></div><div class="chip chip-v">Pacing</div></div>
+    <div class="cb">
+      <div class="flow">
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--bg3);color:var(--ink2);border:1px solid rgba(255,255,255,.08)">1</div><div class="fline"></div></div><div class="fc"><div class="ft">Target spend rate</div><div class="fd">target_rate = daily_budget / 24h. Phân bổ đều theo giờ với optional weighting theo traffic pattern.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--bg3);color:var(--ink2);border:1px solid rgba(255,255,255,.08)">2</div><div class="fline"></div></div><div class="fc"><div class="ft">Throttling mechanism</div><div class="fd">Mỗi giờ, tính pace_ratio = actual_spend / expected_spend. Nếu &gt;1.2 → giảm bid 20%. Nếu &lt;0.8 → tăng bid 15%.</div>
+          <div class="code" style="margin-top:6px">
+pace_ratio = actual_spend_so_far / (budget × elapsed_hours / 24)
+bid_multiplier = <span class="kw">max</span>(<span class="num">0.5</span>, <span class="kw">min</span>(<span class="num">1.5</span>, <span class="num">2</span> - pace_ratio))</div>
+        </div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--bg3);color:var(--ink2);border:1px solid rgba(255,255,255,.08)">3</div></div><div class="fc"><div class="ft">Hard budget cap</div><div class="fd">Real-time budget tracker. Khi spend ≥ daily_budget → immediate pause, remove từ all indexes. Không over-deliver.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="g1 fade d2">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Pricing tiers &amp; advertiser console</div><div class="ch-s">Các gói và cách advertiser tương tác với hệ thống</div></div></div>
+    <div class="cb np">
+      <table class="tbl">
+        <thead><tr><th>Tier</th><th>Mechanism</th><th>Min CPM</th><th>Targeting</th><th>Reporting</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip chip-n">Standard</span></td><td>Open auction, eCPM-based</td><td>5,000đ</td><td>District + category + time</td><td>Daily: impressions, CTR</td></tr>
+          <tr><td><span class="chip chip-s">Premium</span></td><td>Priority queue + guaranteed slots</td><td>15,000đ</td><td>+ POI targeting + user tier</td><td>+ Store visit, engagement</td></tr>
+          <tr><td><span class="chip chip-c">Strategic</span></td><td>Direct deal, fixed CPM, first look</td><td>30,000đ</td><td>+ Full audience segmentation + daypart</td><td>+ Uplift study + attribution</td></tr>
+          <tr><td><span class="chip chip-a">Roadblock</span></td><td>100% SOV cho route/district/time</td><td>Negotiated</td><td>Exclusive takeover</td><td>Full measurement package</td></tr>
+        </tbody>
+      </table>
+      <div class="cb" style="border-top:1px solid rgba(255,255,255,.05)">
+        <div class="note note-g"><div class="note-ic">★</div><div class="note-tx"><strong>GSM Unique — App-integrated packages</strong>Chỉ GSM có thể offer: (1) In-taxi screen + App push bundle — one impression, two touchpoints. (2) QR → App deep link với tracked redemption. (3) Post-trip notification với attributed store visit. Đây là pricing premium justified.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     S10 · CAUSAL INFERENCE & MEASUREMENT
+═══════════════════════════════════════════════ -->
+<section id="s10" class="sec">
+<div class="hero fade"><div class="hero-tag">Measurement · Module 11</div><h1 class="hero-h">Causal Inference<br><em>&amp; Attribution</em></h1><p class="hero-p">Đo lường đúng bằng phương pháp nhân quả — không phải correlation. Ba phương pháp: A/B testing, geo experiment, và uplift modeling. Mỗi cái phù hợp với một bài toán khác nhau.</p></div>
+
+<div class="g2 fade d1">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Offline vs Online metrics — phân biệt rõ</div><div class="ch-s">Đừng dùng offline metric để báo cáo business impact</div></div></div>
+    <div class="cb np">
+      <table class="tbl">
+        <thead><tr><th>Metric</th><th>Type</th><th>Dùng cho</th><th>Không dùng cho</th></tr></thead>
+        <tbody>
+          <tr><td><span class="fname">AUC-ROC, NDCG, Logloss</span></td><td><span class="chip chip-v">Offline</span></td><td>Đánh giá model trước deploy</td><td>Report cho advertiser/business</td></tr>
+          <tr><td><span class="fname">Impression, CPM</span></td><td><span class="chip chip-s">Online delivery</span></td><td>Đảm bảo delivery theo cam kết</td><td>Đo business impact của quảng cáo</td></tr>
+          <tr><td><span class="fname">CTR, QR Scan Rate</span></td><td><span class="chip chip-a">Online engagement</span></td><td>Tối ưu creative, A/B test creatives</td><td>Prove ROI nếu không có holdout</td></tr>
+          <tr><td><span class="fname">Incremental Store Visit</span></td><td><span class="chip chip-c">Causal online</span></td><td>Report business impact cho advertiser</td><td>Khi không có holdout group</td></tr>
+          <tr><td><span class="fname">Incremental Revenue Lift</span></td><td><span class="chip chip-g">Causal online</span></td><td>Ultimate ROI metric</td><td>Khi không có conversion data từ advertiser</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">A/B Testing framework</div><div class="ch-s">Standard randomized experiment — dùng thường xuyên nhất</div></div><div class="chip chip-c">Most Used</div></div>
+    <div class="cb">
+      <div class="flow">
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">1</div><div class="fline"></div></div><div class="fc"><div class="ft">Randomization unit = user_token</div><div class="fd">Hash(user_token + experiment_id) % 100 → assign group. Đảm bảo same user luôn vào cùng group.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">2</div><div class="fline"></div></div><div class="fc"><div class="ft">Holdout group — 10% traffic</div><div class="fd">Group thấy PSA thay vì commercial ads. Measure: store_visit_rate(exposed) - store_visit_rate(holdout) = true lift.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">3</div><div class="fline"></div></div><div class="fc"><div class="ft">Sample size calculation trước</div><div class="fd">MDE = 0.5% (minimum detectable effect), α=0.05, power=0.8. Tính sample size cần để kết quả có ý nghĩa thống kê.</div>
+          <div class="code" style="margin-top:6px">
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> norm
+mde, alpha, power = <span class="num">0.005</span>, <span class="num">0.05</span>, <span class="num">0.80</span>
+z_alpha = norm.<span class="fn">ppf</span>(<span class="num">1</span> - alpha/<span class="num">2</span>)
+z_power = norm.<span class="fn">ppf</span>(power)
+baseline_cvr = <span class="num">0.028</span>  <span class="cm"># store visit rate</span>
+n = <span class="num">2</span> * (z_alpha + z_power)**<span class="num">2</span> * baseline_cvr * (<span class="num">1</span>-baseline_cvr) / mde**<span class="num">2</span>
+<span class="cm"># → n ≈ 8,450 users per group</span></div>
+        </div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--cyan2);color:var(--cyan)">4</div></div><div class="fc"><div class="ft">Sequential testing</div><div class="fd">Dùng mSPRT thay vì fixed-horizon để có thể early stop nếu effect rõ ràng. Tránh peek-and-stop.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="g2 fade d2">
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Geo Experiment</div><div class="ch-s">Khi không thể randomize by user — dùng geographic units</div></div><div class="chip chip-v">Geo Split</div></div>
+    <div class="cb">
+      <div class="note note-v"><div class="note-ic">ℹ</div><div class="note-tx"><strong>Khi nào dùng?</strong>Advertiser yêu cầu: "chứng minh campaign này bring customers đến 50 stores của chúng tôi." Không thể randomize bằng user (advertiser không chấp nhận holdout). → Randomize bằng geographic unit.</div></div>
+      <div class="flow" style="margin-top:10px">
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--violet2);color:var(--violet)">1</div><div class="fline"></div></div><div class="fc"><div class="ft">Pair matching districts</div><div class="fd">Tìm cặp districts tương đồng (population, traffic volume, baseline store visit rate). Assign một cái là treatment, một cái là control.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--violet2);color:var(--violet)">2</div><div class="fline"></div></div><div class="fc"><div class="ft">Run campaign chỉ trong treatment districts</div><div class="fd">Control districts không nhận bất kỳ ads nào của brand này. Collect store visit data từ cả hai.</div></div></div>
+        <div class="fi"><div class="fl"><div class="fn2" style="background:var(--violet2);color:var(--violet)">3</div></div><div class="fc"><div class="ft">DiD (Difference-in-Differences)</div><div class="fd">Lift = (Δ store visit treatment) - (Δ store visit control). Controls for seasonal trends và external effects.</div>
+          <div class="code" style="margin-top:6px">
+<span class="cm"># DiD estimator</span>
+lift = (SV_treat_post - SV_treat_pre) - (SV_ctrl_post - SV_ctrl_pre)
+<span class="cm"># Robust to: seasonality, economic changes, competitor activity</span></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div><div class="ch-t">Uplift Modeling</div><div class="ch-s">Identify users who respond to ads — skip "always buyers"</div></div><div class="chip chip-a">Advanced</div></div>
+    <div class="cb">
+      <div class="note note-a"><div class="note-ic">⚠</div><div class="note-tx"><strong>Vấn đề với standard targeting</strong>Standard model: target users có P(buy) cao. Nhưng "always buyers" sẽ mua dù không xem ads → waste budget. Uplift model tìm users có P(buy | ad) - P(buy | no ad) cao nhất.</div></div>
+      <div class="code" style="margin-top:10px">
+<span class="cm"># Uplift = CATE (Conditional Average Treatment Effect)</span>
+<span class="cm"># tau(x) = E[Y(1) - Y(0) | X=x]</span>
+
+<span class="cm"># S-Learner approach (simple, good starting point)</span>
+<span class="kw">from</span> causalml.inference.meta <span class="kw">import</span> BaseSLearner
+<span class="kw">from</span> lightgbm <span class="kw">import</span> LGBMRegressor
+
+uplift_model = <span class="fn">BaseSLearner</span>(learner=<span class="fn">LGBMRegressor</span>())
+uplift_model.<span class="fn">fit</span>(X=features, treatment=treatment_flag, y=outcome)
+tau = uplift_model.<span class="fn">predict</span>(X=new_users)
+
+<span class="cm"># Segment by uplift score</span>
+<span class="cm"># "Persuadables" (high tau): target these — they respond to ads</span>
+<span class="cm"># "Sure things" (high base, low tau): skip to save budget</span>
+<span class="cm"># "Lost causes" (low base, low tau): skip</span>
+<span class="cm"># "Sleeping dogs" (low base, negative tau): NEVER target (ads hurt)</span></div>
+      <div class="note note-c" style="margin-top:8px"><div class="note-ic">→</div><div class="note-tx"><strong>Triển khai thực tế</strong>Phase 3 (sau 6 tháng data). Cần paired exposure/control data từ A/B test trước. Expected: 15–25% budget savings với cùng hoặc tốt hơn ROI.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="g1 fade d3">
+  <div class="card accent-cyan">
+    <div class="ch"><div><div class="ch-t">Measurement roadmap — triển khai theo thứ tự</div><div class="ch-s">Không rush — mỗi bước cần đủ data trước khi làm bước tiếp theo</div></div></div>
+    <div class="cb">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div style="padding:14px;background:var(--bg2);border-radius:var(--r);border:1px solid rgba(255,255,255,.06)">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--sage);margin-bottom:6px">THÁNG 1–2</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px">Delivery metrics</div>
+          <div style="font-size:11px;color:var(--ink2);line-height:1.5">Impressions, CPM, fill rate, frequency distribution. Đảm bảo delivery đúng cam kết với advertiser.</div>
+        </div>
+        <div style="padding:14px;background:var(--bg2);border-radius:var(--r);border:1px solid rgba(255,255,255,.06)">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--sky);margin-bottom:6px">THÁNG 2–4</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px">Engagement + A/B test</div>
+          <div style="font-size:11px;color:var(--ink2);line-height:1.5">CTR, QR Scan Rate, View completion. Đầu tiên A/B test creatives, sau đó A/B test targeting strategies.</div>
+        </div>
+        <div style="padding:14px;background:var(--bg2);border-radius:var(--r);border:1px solid rgba(255,255,255,.06)">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--gold);margin-bottom:6px">THÁNG 3–6</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px">Incremental lift</div>
+          <div style="font-size:11px;color:var(--ink2);line-height:1.5">Holdout group → Incremental store visit lift. Geo experiment cho brand safety. Đây là proof-of-value với premium advertisers.</div>
+        </div>
+        <div style="padding:14px;background:var(--cyan3);border-radius:var(--r);border:1px solid rgba(0,229,204,.15)">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--cyan);margin-bottom:6px">THÁNG 6+</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px;color:var(--cyan)">Uplift modeling</div>
+          <div style="font-size:11px;color:var(--ink2);line-height:1.5">Identify "persuadable" users. Target smarter → giảm budget waste → advertiser ROI tăng → premium pricing justified.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+  </div><!-- /body -->
+</main>
+</div><!-- /shell -->
+
+<script>
+const TITLES={
+  's0':'Problem Framing','s1':'System Architecture',
+  's2':'Feature Store Design','s3':'Feature Engineering',
+  's4':'Candidate Generation','s5':'Ranking Models',
+  's6':'Learning Loop','s7':'Cold Start Strategy',
+  's8':'Serving & Latency','s9':'Pricing & Auction',
+  's10':'Causal Inference'
+};
+
+function go(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
+  const sec=document.getElementById(id);
+  if(sec){
+    sec.classList.add('on');
+    sec.querySelectorAll('.fade').forEach(f=>{
+      f.style.animation='none';void f.offsetWidth;f.style.animation='';
+    });
+  }
+  if(el)el.classList.add('on');
+  document.getElementById('tb-cur').textContent=TITLES[id]||id;
+  document.querySelector('.main').scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>{
+    document.querySelectorAll('#'+id+' .bar-fill').forEach(b=>{
+      const w=b.style.width;b.style.width='0%';
+      setTimeout(()=>{b.style.width=w;},80);
+    });
+  },120);
+}
+
+// Init bars on load
+setTimeout(()=>{
+  document.querySelectorAll('.bar-fill').forEach(b=>{
+    const w=b.style.width;b.style.width='0%';
+    setTimeout(()=>{b.style.width=w;},200);
+  });
+},400);
+</script>
+</body>
+</html>
